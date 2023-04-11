@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "fs": "^0.0.1-security",
+    "rppp": "^0.4.2",
+    "wav-file-info": "^0.0.10"
+  }
+}
