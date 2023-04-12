@@ -1,7 +1,10 @@
 {
   "dependencies": {
     "fs": "^0.0.1-security",
+    "node-rest-client": "^3.1.1",
     "rppp": "^0.4.2",
-    "wav-file-info": "^0.0.10"
+    "waapi": "^2017.2.0",
+    "wav-file-info": "^0.0.10",
+    "ws": "^8.13.0"
   }
 }
