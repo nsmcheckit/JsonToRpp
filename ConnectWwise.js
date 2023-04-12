@@ -11,7 +11,6 @@ const httpParams = {
     },
     headers: { 'Content-Type': 'application/json' },
 };
-
 // 创建客户端
 const client = new Client();
 
@@ -43,41 +42,51 @@ async function getEventTypeAndTargetLength(eventName) {
         const queryParams = {
             data: {
                 uri: ak.wwise.core.object.get,
-                options: {return: ['name', 'audioSource:playbackDuration', 'path']},
-                args: {waql: `$ "/Events" select descendants where name ="${eventName}"`}
+                options: { return: ['name', 'audioSource:playbackDuration', 'path'] },
+                args: { waql: `$ "/Events" select descendants where name ="${eventName}"` }
             },
             headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
         };
 
-        client.post('http://localhost:8090/waapi', queryParams, function (data, response) {
+        client.post('http://localhost:8090/waapi', queryParams, function (queryResult, response) {
             //console.log('Request:', JSON.stringify(queryParams, null, 2));
-            console.log('Response:', JSON.stringify(data, null, 2));
+            //console.log('Response:', JSON.stringify(data, null, 2));
             if (response.statusCode !== 200) {
                 console.error(`查询事件失败: ${eventName}，状态码：${response.statusCode}，错误消息：${data.message}`);
                 reject(new Error(`查询事件失败: ${eventName}`));
                 return;
             }
-            
-            console.log(resolveWaapiResposeData(data));
+
+            resolve(queryResult);
         });
     });
-
-    if (!queryResult || !queryResult.objects || queryResult.objects.length === 0) {
+    if (!queryResult) {
         console.log(`找不到事件: ${eventName}`);
-        return;
+        return null;
     }
 
-    return resolveWaapiResposeData(data);
+    return resolveWaapiResposeData(queryResult);
 }
 
-function resolveWaapiResposeData(data){
-    if (data.return && data.return.length > 0) {
-        switch (data.return[0]["audioSource:playbackDuration"]["playbackDurationType"]) {
-            case 'oneShot': return data.return[0]["audioSource:playbackDuration"]["playbackDurationMax"];
-            case 'mixed': return data.return[0]["audioSource:playbackDuration"]["playbackDurationMax"];//random container
-        }
+function resolveWaapiResposeData(queryResult) {
+    if (queryResult.return && queryResult.return.length > 0) {
+        return queryResult.return[0]["audioSource:playbackDuration"]["playbackDurationMax"];
+        // switch (data.return[0]["audioSource:playbackDuration"]["playbackDurationType"]) {
+        //     case 'oneShot': return data.return[0]["audioSource:playbackDuration"]["playbackDurationMax"];
+        //     case 'mixed': return data.return[0]["audioSource:playbackDuration"]["playbackDurationMax"];//random container
+        // }
     }
     return null;
 }
-helloWwise();
-getEventTypeAndTargetLength("Play_No_20_Street");
+
+module.exports = {
+    Client,
+    ak,
+    httpParams,
+    client,
+    helloWwise,
+    getEventTypeAndTargetLength,
+    resolveWaapiResposeData,
+};
+
+getEventTypeAndTargetLength("Play_Skill01")

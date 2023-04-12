@@ -1,9 +1,11 @@
+const { client, Client, ak, initWaapi, helloWwise, getEventTypeAndTargetLength, resolveWaapiResposeData } = require('./ConnectWwise.js');
+require('./ConnectWwise.js');
 const fs = require('fs');
 const rppp = require('rppp');
 const wavFileInfo = require("wav-file-info");
 
 //wav文件夹路径
-const wavFoldPath = "F:\\JsonToRppp\\" ;
+const wavFoldPath = "F:\\JsonToRppp\\";
 
 // 输入 JSON 文件路径
 const inputJsonPath = './input.json';
@@ -21,10 +23,8 @@ fs.readFile(inputJsonPath, 'utf-8', (err, jsonString) => {
     try {
         // 解析 JSON 数据
         const jsonData = JSON.parse(jsonString);
-
         // 创建 RPP 工程
         const rppProject = createRppProject(jsonData);
-
         // 将 RPP 工程写入文件
         fs.writeFile(outputRppPath, rppProject.dump(), (err) => {
             if (err) {
@@ -45,22 +45,21 @@ function createRppProject(jsonData) {
     // 默认工程属性
     project.bpm = 120;
     project.timeSignature = [4, 4];
-
+    var duration = 0;
     // 为每个项目创建轨道
     jsonData.items.forEach((itemData, index) => {
         const track = new rppp.objects.ReaperTrack();//新建一个track
         track.name = itemData.names[0];
-
+        duration = getEventDuration(track.name);
         const item = new rppp.objects.ReaperItem();//新建一个item
-        item.add({ token: "POSITION", params: [itemData.time/1000] });
-        item.add({ token: "LENGTH", params: [3000] });
-        
+        item.add({ token: "POSITION", params: [itemData.time / 1000] });
+        item.add({ token: "LENGTH", params: [100] });
         const source = new rppp.objects.ReaperSource();
-         source.add({ 
-            token: "FILE", 
-            params: [ wavFoldPath + itemData.names[0] + ".wav" ] 
-            });
-        item.add(source);
+        source.add({
+            token: "FILE",
+            params: [wavFoldPath + itemData.names[0] + ".wav"]
+        });
+        //item.add(source);
 
 
         track.add(item);
@@ -74,8 +73,20 @@ function createRppProject(jsonData) {
     return project;
 }
 
-function getWavDuartion(wavPath){
-    const wavInfo = wavFileInfo.getInfoByFilenameSync(wavPath);
-    console.log(wavInfo);
-    return wavInfo.duration;
+async function getEventDuration(eventName) {
+    var eventDuration = await getEventTypeAndTargetLength(eventName);
+    if (eventDuration == null || eventDuration == 0) {
+        console.log("获取事件时长失败");
+        return 0;
+    }
+    eventDuration = parseInt(eventDuration, 16);
+    //console.log(eventDuration)
+    return eventDuration;
+    //if(!eventDuration == null && eventDuration != 0){
+    //return eventDuration;
+    //}
+    // else{
+    //     console.log("获取事件时长失败");
+    //     return 0;
+    // }
 }
