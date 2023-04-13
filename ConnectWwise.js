@@ -16,7 +16,7 @@ const client = new Client();
 
 function helloWwise() {
     // 发送请求
-    const req = client.post('http://localhost:8090/waapi', httpParams, function (objectPayload, response) {
+    const req = client.post('http://127.0.0.1:8090/waapi', httpParams, function (objectPayload, response) {
         if (response.statusCode !== 200) {
             if (response.headers['content-type'] === 'application/json') {
                 console.log(`Error: ${objectPayload.uri}: ${JSON.stringify(objectPayload)}`);
@@ -42,13 +42,13 @@ async function getEventTypeAndTargetLength(eventName) {
         const queryParams = {
             data: {
                 uri: ak.wwise.core.object.get,
-                options: { return: ['name', 'audioSource:playbackDuration', 'path'] },
+                options: { return: ['maxDurationSource'] },
                 args: { waql: `$ "/Events" select descendants where name ="${eventName}"` }
             },
             headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
         };
 
-        client.post('http://localhost:8090/waapi', queryParams, function (queryResult, response) {
+        client.post('http://127.0.0.1:8090/waapi', queryParams, function (queryResult, response) {
             //console.log('Request:', JSON.stringify(queryParams, null, 2));
             //console.log('Response:', JSON.stringify(data, null, 2));
             if (response.statusCode !== 200) {
@@ -64,13 +64,12 @@ async function getEventTypeAndTargetLength(eventName) {
         console.log(`找不到事件: ${eventName}`);
         return null;
     }
-
     return resolveWaapiResposeData(queryResult);
 }
 
 function resolveWaapiResposeData(queryResult) {
     if (queryResult.return && queryResult.return.length > 0) {
-        return queryResult.return[0]["audioSource:playbackDuration"]["playbackDurationMax"];
+        return queryResult.return[0]["maxDurationSource"]["trimmedDuration"];
         // switch (data.return[0]["audioSource:playbackDuration"]["playbackDurationType"]) {
         //     case 'oneShot': return data.return[0]["audioSource:playbackDuration"]["playbackDurationMax"];
         //     case 'mixed': return data.return[0]["audioSource:playbackDuration"]["playbackDurationMax"];//random container
@@ -88,5 +87,3 @@ module.exports = {
     getEventTypeAndTargetLength,
     resolveWaapiResposeData,
 };
-
-getEventTypeAndTargetLength("Play_Skill01")

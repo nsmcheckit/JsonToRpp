@@ -1,4 +1,14 @@
 {
+  "name": "JsonToRpp",
+  "version": "1.0.0",
+  "description": "Your project description",
+  "main": "JsonToRppp.js",
+  "bin": "JsonToRppp.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Your Name",
+  "license": "ISC",
   "dependencies": {
     "fs": "^0.0.1-security",
     "node-rest-client": "^3.1.1",

@@ -3,6 +3,9 @@ require('./ConnectWwise.js');
 const fs = require('fs');
 const rppp = require('rppp');
 const wavFileInfo = require("wav-file-info");
+const util = require('util');
+const readFileAsync = util.promisify(fs.readFile);
+const writeFileAsync = util.promisify(fs.writeFile);
 
 //wav文件夹路径
 const wavFoldPath = "F:\\JsonToRppp\\";
@@ -14,53 +17,47 @@ const inputJsonPath = './input.json';
 const outputRppPath = './output.rpp';
 
 // 从 JSON 文件中读取数据
-fs.readFile(inputJsonPath, 'utf-8', (err, jsonString) => {
-    if (err) {
-        console.error('Error reading file:', err);
-        return;
-    }
-
+async function processJsonFile() {
     try {
-        // 解析 JSON 数据
+        const jsonString = await readFileAsync(inputJsonPath, 'utf-8');
         const jsonData = JSON.parse(jsonString);
-        // 创建 RPP 工程
-        const rppProject = createRppProject(jsonData);
-        // 将 RPP 工程写入文件
-        fs.writeFile(outputRppPath, rppProject.dump(), (err) => {
-            if (err) {
-                console.error('Error writing file:', err);
-            } else {
-                console.log('RPP file created:', outputRppPath);
-            }
-        });
+        const rppProject = await createRppProject(jsonData);
+        await writeFileAsync(outputRppPath, rppProject.dump());
+        console.log('RPP file created:', outputRppPath);
     } catch (err) {
-        console.error('Error parsing JSON:', err);
+        if (err.code === 'ENOENT') {
+            console.error('Error reading file:', err);
+        } else if (err instanceof SyntaxError) {
+            console.error('Error parsing JSON:', err);
+        } else {
+            console.error('Error writing file:', err);
+        }
     }
-});
+}
 
 // 根据输入的 JSON 数据创建 RPP 工程
-function createRppProject(jsonData) {
-    const project = new rppp.objects.ReaperProject();//新建一个rpp项目
+async function createRppProject(jsonData) {
+    const project = new rppp.objects.ReaperProject(); // 新建一个rpp项目
 
     // 默认工程属性
     project.bpm = 120;
     project.timeSignature = [4, 4];
-    var duration = 0;
+    let duration;
+
     // 为每个项目创建轨道
-    jsonData.items.forEach((itemData, index) => {
-        const track = new rppp.objects.ReaperTrack();//新建一个track
+    for (const [index, itemData] of jsonData.items.entries()) {
+        const track = new rppp.objects.ReaperTrack(); // 新建一个track
         track.name = itemData.names[0];
-        duration = getEventDuration(track.name);
-        const item = new rppp.objects.ReaperItem();//新建一个item
+        duration = parseFloat(await getEventDuration(track.name));
+        const item = new rppp.objects.ReaperItem(); // 新建一个item
         item.add({ token: "POSITION", params: [itemData.time / 1000] });
-        item.add({ token: "LENGTH", params: [100] });
+        item.add({ token: "LENGTH", params: [duration] });
         const source = new rppp.objects.ReaperSource();
         source.add({
             token: "FILE",
-            params: [wavFoldPath + itemData.names[0] + ".wav"]
+            params: [wavFoldPath + itemData.names[0] + ".wav"],
         });
-        //item.add(source);
-
+        // item.add(source);
 
         track.add(item);
         project.addTrack(track);
@@ -68,10 +65,11 @@ function createRppProject(jsonData) {
             token: "NAME",
             params: [track.name],
         });
-    });
+    }
 
     return project;
 }
+
 
 async function getEventDuration(eventName) {
     var eventDuration = await getEventTypeAndTargetLength(eventName);
@@ -79,7 +77,7 @@ async function getEventDuration(eventName) {
         console.log("获取事件时长失败");
         return 0;
     }
-    eventDuration = parseInt(eventDuration, 16);
+    eventDuration = parseFloat(eventDuration, 16);
     //console.log(eventDuration)
     return eventDuration;
     //if(!eventDuration == null && eventDuration != 0){
@@ -90,3 +88,5 @@ async function getEventDuration(eventName) {
     //     return 0;
     // }
 }
+
+processJsonFile()
