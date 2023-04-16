@@ -55,7 +55,7 @@ async function createRppProject(jsonData) {
         item.add({ token: "NAME", params: [track.name] });
         const source = new rppp.objects.ReaperSource();
         source.add({
-            token: "MIDI",
+            token: "",
             params: [],
             //params: [wavFoldPath + itemData.names[0] + ".wav"]
         });
