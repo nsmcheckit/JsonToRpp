@@ -87,6 +87,10 @@
     <ITEM
       POSITION 0.5
       LENGTH 1
+      NAME Play_Skill01
+      <SOURCE WAVE
+        MIDI
+      >
     >
     NAME Play_Skill01
   >
@@ -94,6 +98,10 @@
     <ITEM
       POSITION 4.916
       LENGTH 0.20000000000000007
+      NAME Play_Skill02
+      <SOURCE WAVE
+        MIDI
+      >
     >
     NAME Play_Skill02
   >
@@ -101,6 +109,10 @@
     <ITEM
       POSITION 5.62
       LENGTH 3
+      NAME Play_Skill03
+      <SOURCE WAVE
+        MIDI
+      >
     >
     NAME Play_Skill03
   >

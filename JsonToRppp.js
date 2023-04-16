@@ -52,12 +52,14 @@ async function createRppProject(jsonData) {
         const item = new rppp.objects.ReaperItem(); // 新建一个item
         item.add({ token: "POSITION", params: [itemData.time / 1000] });
         item.add({ token: "LENGTH", params: [duration] });
+        item.add({ token: "NAME", params: [track.name] });
         const source = new rppp.objects.ReaperSource();
         source.add({
-            token: "FILE",
-            params: [wavFoldPath + itemData.names[0] + ".wav"],
+            token: "MIDI",
+            params: [],
+            //params: [wavFoldPath + itemData.names[0] + ".wav"]
         });
-        // item.add(source);
+        item.add(source);
 
         track.add(item);
         project.addTrack(track);
