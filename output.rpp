@@ -85,35 +85,89 @@
   >
   <TRACK
     <ITEM
+      POSITION 0
+      LENGTH 10000
+      NAME Video
+      <SOURCE WAVE
+         ./video.mp4
+      >
+    >
+    NAME Play_E_Light
+  >
+  <TRACK
+    <ITEM
       POSITION 0.5
-      LENGTH 1
-      NAME Play_Skill01
+      LENGTH 0.7812698412698412
+      NAME Play_E_Light
       <SOURCE WAVE
         
       >
     >
-    NAME Play_Skill01
+    NAME Play_E_Light
   >
   <TRACK
     <ITEM
-      POSITION 4.916
-      LENGTH 0.20000000000000007
-      NAME Play_Skill02
+      POSITION 1.482
+      LENGTH 0.7812698412698412
+      NAME Play_E_Light
       <SOURCE WAVE
         
       >
     >
-    NAME Play_Skill02
+    NAME Play_E_Light
   >
   <TRACK
     <ITEM
-      POSITION 5.62
-      LENGTH 3
-      NAME Play_Skill03
+      POSITION 2.975
+      LENGTH 0.7812698412698412
+      NAME Play_E_Light
       <SOURCE WAVE
         
       >
     >
-    NAME Play_Skill03
+    NAME Play_E_Light
+  >
+  <TRACK
+    <ITEM
+      POSITION 4.468
+      LENGTH 0.7812698412698412
+      NAME Play_E_Light
+      <SOURCE WAVE
+        
+      >
+    >
+    NAME Play_E_Light
+  >
+  <TRACK
+    <ITEM
+      POSITION 5.471
+      LENGTH 0.7812698412698412
+      NAME Play_E_Light
+      <SOURCE WAVE
+        
+      >
+    >
+    NAME Play_E_Light
+  >
+  <TRACK
+    <ITEM
+      POSITION 6.474
+      LENGTH 0.7812698412698412
+      NAME Play_E_Light
+      <SOURCE WAVE
+        
+      >
+    >
+    NAME Play_E_Light
+  >
+  <TRACK
+    <ITEM
+      POSITION 7.967
+      LENGTH 0.7812698412698412
+      NAME Play_E_Light
+      <SOURCE WAVE
+        
+      >
+    >
   >
 >
