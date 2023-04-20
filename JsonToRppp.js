@@ -51,7 +51,7 @@ async function createRppProject(jsonData) {
     videoItem.add({ token: "NAME", params: ["Video"] });
     const videoSource = new rppp.objects.ReaperSource();
     videoSource.add({
-        token: "",
+        token: "VIDEO",
         params: [wavFoldPath]} //视频文件路径
     );
     videoItem.add(videoSource);
