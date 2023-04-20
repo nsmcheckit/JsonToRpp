@@ -13,7 +13,7 @@ const httpParams = {
 };
 // 创建客户端
 const client = new Client();
-
+helloWwise()
 function helloWwise() {
     // 发送请求
     const req = client.post('http://127.0.0.1:8090/waapi', httpParams, function (objectPayload, response) {
@@ -47,7 +47,7 @@ async function getEventTypeAndTargetLength(eventName) {
             },
             headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
         };
-
+        
         client.post('http://127.0.0.1:8090/waapi', queryParams, function (queryResult, response) {
             //console.log('Request:', JSON.stringify(queryParams, null, 2));
             //console.log('Response:', JSON.stringify(data, null, 2));
@@ -64,6 +64,7 @@ async function getEventTypeAndTargetLength(eventName) {
         console.log(`找不到事件: ${eventName}`);
         return null;
     }
+    console.log(queryResult);
     return resolveWaapiResposeData(queryResult);
 }
 

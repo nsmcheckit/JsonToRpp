@@ -8,7 +8,7 @@ const readFileAsync = util.promisify(fs.readFile);
 const writeFileAsync = util.promisify(fs.writeFile);
 
 //wav文件夹路径
-const wavFoldPath = "F:\\JsonToRppp\\";
+const wavFoldPath = "./video.mp4";
 
 // 输入 JSON 文件路径
 const inputJsonPath = './input.json';
@@ -43,7 +43,20 @@ async function createRppProject(jsonData) {
     project.bpm = 120;
     project.timeSignature = [4, 4];
     let duration;
-
+    const videoTrack = new rppp.objects.ReaperTrack(); // 新建一个视频轨
+    videoTrack.name = "Video";
+    const videoItem = new rppp.objects.ReaperItem(); // 新建一个视频item
+    videoItem.add({ token: "POSITION", params: [0] });
+    videoItem.add({ token: "LENGTH", params: [10000] });
+    videoItem.add({ token: "NAME", params: ["Video"] });
+    const videoSource = new rppp.objects.ReaperSource();
+    videoSource.add({
+        token: "",
+        params: [wavFoldPath]} //视频文件路径
+    );
+    videoItem.add(videoSource);
+    videoTrack.add(videoItem);
+    project.addTrack(videoTrack);
     // 为每个项目创建轨道
     for (const [index, itemData] of jsonData.items.entries()) {
         const track = new rppp.objects.ReaperTrack(); // 新建一个track
