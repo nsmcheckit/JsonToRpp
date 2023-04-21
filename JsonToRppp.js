@@ -1,20 +1,73 @@
 const { client, Client, ak, initWaapi, helloWwise, getEventTypeAndTargetLength, resolveWaapiResposeData } = require('./ConnectWwise.js');
 require('./ConnectWwise.js');
 const fs = require('fs');
+const path = require('path');
 const rppp = require('rppp');
-const wavFileInfo = require("wav-file-info");
 const util = require('util');
 const readFileAsync = util.promisify(fs.readFile);
 const writeFileAsync = util.promisify(fs.writeFile);
 
-//wav文件夹路径
-const wavFoldPath = "./video.mp4";
+//项目路径
+const dirPath = './';
+
+//文件路径
+const mp4Path = dirPath + findMp4Files(dirPath);
 
 // 输入 JSON 文件路径
-const inputJsonPath = './input.json';
+const inputJsonPath = dirPath + findPlaybackerFiles(dirPath);
 
 // 输出 RPP 文件路径
 const outputRppPath = './output.rpp';
+
+// 判断是否为 Playbacker 文件
+function isPlaybackerFile(filename) {
+    const playbackerExtension = '.playbacker';
+    return filename.endsWith(playbackerExtension);
+}
+
+// 判断是否为 MP4 文件
+function isMp4(filename) {
+    const mp4Extension = '.mp4';
+    return filename.endsWith(mp4Extension);
+}
+
+// 递归查找文件夹中的所有 Playbacker 文件
+function findPlaybackerFiles(dirPath) {
+    const playbackerFiles = [];
+
+    fs.readdirSync(dirPath).forEach((file) => {
+        const fullPath = path.join(dirPath, file);
+
+        if (fs.statSync(fullPath).isDirectory()) {
+            playbackerFiles.push(...findPlaybackerFiles(fullPath));
+        } else {
+            if (isPlaybackerFile(file)) {
+                playbackerFiles.push(fullPath);
+            }
+        }
+    });
+
+    return playbackerFiles;
+}
+
+// 递归查找文件夹中的所有 mp4 文件
+function findMp4Files(dirPath) {
+    const mp4Files = [];
+
+    fs.readdirSync(dirPath).forEach((file) => {
+        const fullPath = path.join(dirPath, file);
+
+        if (fs.statSync(fullPath).isDirectory()) {
+            mp4Files.push(...findMp4Files(fullPath));
+        } else {
+            if (isMp4(file)) {
+                mp4Files.push(fullPath);
+            }
+        }
+    });
+
+    return mp4Files;
+}
 
 // 从 JSON 文件中读取数据
 async function processJsonFile() {
@@ -43,11 +96,13 @@ async function createRppProject(jsonData) {
     project.bpm = 120;
     project.timeSignature = [4, 4];
     let duration;
+    let position;
     // 为每个项目创建轨道
     for (const [index, itemData] of jsonData.items.entries()) {
         const track = new rppp.objects.ReaperTrack(); // 新建一个track
         track.name = itemData.names[0];
         duration = parseFloat(await getEventDuration(track.name));
+        position = itemData.time / 1000;
         const item = new rppp.objects.ReaperItem(); // 新建一个item
         item.add({ token: "POSITION", params: [itemData.time / 1000] });
         item.add({ token: "LENGTH", params: [duration] });
@@ -69,27 +124,16 @@ async function createRppProject(jsonData) {
     }
     //视频
     const videoTrack = new rppp.objects.ReaperTrack(); // 新建一个视频轨
-    videoTrack.name = "Video";
+    videoTrack.add({ token: "NAME", params: ["Video"] });
     const videoItem = new rppp.objects.ReaperItem(); // 新建一个视频item
     videoItem.add({ token: "POSITION", params: [0] });
-    videoItem.add({ token: "LENGTH", params: [10000] });
+    videoItem.add({ token: "LENGTH", params: [position + duration] });
     videoItem.add({ token: "NAME", params: ["Video"] });
     videoItem.getOrCreateStructByToken("<SOURCE VIDEO", 0);
+    videoItem.getOrCreateStructByToken("FILE video.mp4", 0);
     videoItem.getOrCreateStructByToken(">", 0);
-
-    // videoTrack.contents.push({
-    //     "token": "SOURCE VIDEO",
-    //     "params": [],
-    // });
-    //const videoSource = new rppp.objects.ReaperSource();
-    // videoItem.add({
-    //     token: "SOURCE VIDEO",
-    //     //params: [{token: "FILE", params: ["video.mp4"]}] //视频文件路径
-    // });
-    //videoItem.add(videoSource);
     videoTrack.add(videoItem);
     project.addTrack(videoTrack);
-    console.log(project.contents);
 
     return project;
 }
@@ -102,15 +146,8 @@ async function getEventDuration(eventName) {
         return 0;
     }
     eventDuration = parseFloat(eventDuration, 16);
-    //console.log(eventDuration)
+
     return eventDuration;
-    //if(!eventDuration == null && eventDuration != 0){
-    //return eventDuration;
-    //}
-    // else{
-    //     console.log("获取事件时长失败");
-    //     return 0;
-    // }
 }
 
 processJsonFile()

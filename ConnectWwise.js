@@ -64,7 +64,6 @@ async function getEventTypeAndTargetLength(eventName) {
         console.log(`找不到事件: ${eventName}`);
         return null;
     }
-    console.log(queryResult);
     return resolveWaapiResposeData(queryResult);
 }
 
